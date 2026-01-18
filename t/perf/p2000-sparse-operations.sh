@@ -138,5 +138,20 @@ test_perf_on_all git check-attr -a -- $SPARSE_CONE/a
 test_perf_on_all 'echo >>a && test_write_lines y | git add -p'
 test_perf_on_all 'test_write_lines y y y | git checkout --patch -'
 test_perf_on_all 'echo >>a && git add a && test_write_lines y | git reset --patch'
+test_perf 'cone-mode dedup stress (many parents, repeated duplicate)' '
+	(
+		cd full-v4 &&
+		for i in $(test_seq 1 5000)
+		do
+			printf "f1/f2/dir$i\n"
+		done >in &&
+		git sparse-checkout set --stdin <in &&
+		for i in $(test_seq 1 200)
+		do
+			printf "f1/f2/dir1\n" | git sparse-checkout add --stdin
+		done
+	)
+'
+
 
 test_done
