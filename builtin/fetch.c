@@ -2725,7 +2725,7 @@ int cmd_fetch(int argc,
 			argv++;
 		}
 	}
-	string_list_remove_duplicates(&list, 0);
+	unsorted_string_list_remove_duplicates(&list, 0);
 
 	if (negotiate_only) {
 		struct oidset acked_commits = OIDSET_INIT;

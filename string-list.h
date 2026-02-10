@@ -214,7 +214,7 @@ struct string_list_item *string_list_lookup(struct string_list *list, const char
  * members of any items that have to be deleted.
  */
 void string_list_remove_duplicates(struct string_list *sorted_list, int free_util);
-
+void unsorted_string_list_remove_duplicates(struct string_list *list, int free_util);
 
 /* Use these functions only on unsorted lists: */
 

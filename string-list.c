@@ -1,5 +1,6 @@
 #include "git-compat-util.h"
 #include "string-list.h"
+#include "hashmap.h"
 
 void string_list_init_nodup(struct string_list *list)
 {
@@ -279,6 +280,56 @@ void unsorted_string_list_delete_item(struct string_list *list, int i, int free_
 		free(list->items[i].util);
 	list->items[i] = list->items[list->nr-1];
 	list->nr--;
+}
+
+struct seen_entry {
+    struct hashmap_entry ent;
+    const char *string;
+};
+
+static int seen_entry_cmp(const void *unused_data,
+                          const struct hashmap_entry *eptr,
+                          const struct hashmap_entry *entry_or_key,
+                          const void *keydata)
+{
+    const struct seen_entry *e1, *e2;
+    e1 = container_of(eptr, const struct seen_entry, ent);
+    e2 = container_of(entry_or_key, const struct seen_entry, ent);
+    return strcmp(e1->string, keydata ? keydata : e2->string);
+}
+
+void unsorted_string_list_remove_duplicates_fast(struct string_list *list, int free_util)
+{
+    struct hashmap seen;
+    struct string_list_item *item;
+    int i, new_nr = 0;
+
+    hashmap_init(&seen, seen_entry_cmp, NULL, list->nr);
+
+    for (i = 0; i < list->nr; i++) {
+        struct seen_entry key;
+        struct seen_entry *entry;
+        item = &list->items[i];
+
+        hashmap_entry_init(&key.ent, strhash(item->string));
+        key.string = item->string;
+
+        if (hashmap_get(&seen, &key.ent, NULL)) {
+            if (list->strdup_strings)
+                free(item->string);
+            if (free_util)
+                free(item->util);
+        } else {
+            entry = xmalloc(sizeof(*entry));
+            hashmap_entry_init(&entry->ent, key.ent.hash);
+            entry->string = item->string;
+            hashmap_add(&seen, &entry->ent);
+            list->items[new_nr++] = *item;
+        }
+    }
+
+    list->nr = new_nr;
+    hashmap_clear_and_free(&seen, struct seen_entry, ent);
 }
 
 /*
