@@ -196,7 +196,7 @@ static void list_config_help(enum show_config_type type)
 
 	}
 	string_list_clear(&keys, 0);
-	string_list_remove_duplicates(&keys_uniq, 0);
+	string_list_sort_u(&keys_uniq, 0);
 	for_each_string_list_item(item, &keys_uniq)
 		puts(item->string);
 	string_list_clear(&keys_uniq, 0);
