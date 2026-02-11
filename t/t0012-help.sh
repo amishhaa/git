@@ -153,8 +153,26 @@ test_expect_success 'git help --config-for-completion' '
 	grep -E \
 	     -e "^[^.]+\.[^.]+$" \
 	     -e "^[^.]+\.[^.]+\.[^.]+$" human |
-	     sed -e "s/\*.*//" -e "s/<.*//" |
-	     sort -u >human.munged &&
+	sed -e "s/\*.*//" -e "s/<.*//" |
+	sort -u >human.munged &&
+
+	git help --config-for-completion >vars &&
+	test_cmp human.munged vars
+'
+
+test_expect_success 'git help --config-for-completion' '
+	file="$GIT_SOURCE_DIR/Documentation/config/add.adoc" &&
+	test_when_finished "git -C \"$GIT_SOURCE_DIR\" checkout -- Documentation/config/add.adoc" &&
+	cat <<-\EOF >>"$file" &&
+	aa*.b::
+	aa.b::
+	EOF
+	git help -c >human &&
+	grep -E \
+	     -e "^[^.]+\.[^.]+$" \
+	     -e "^[^.]+\.[^.]+\.[^.]+$" human |
+	sed -e "s/\*.*//" -e "s/<.*//" |
+	sort -u >human.munged &&
 
 	git help --config-for-completion >vars &&
 	test_cmp human.munged vars
@@ -165,8 +183,8 @@ test_expect_success 'git help --config-sections-for-completion' '
 	grep -E \
 	     -e "^[^.]+\.[^.]+$" \
 	     -e "^[^.]+\.[^.]+\.[^.]+$" human |
-	     sed -e "s/\..*//" |
-	     sort -u >human.munged &&
+	sed -e "s/\..*//" |
+	sort -u >human.munged &&
 
 	git help --config-sections-for-completion >sections &&
 	test_cmp human.munged sections
