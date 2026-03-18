@@ -180,6 +180,7 @@ int cmd_diff(int argc, const char **argv, const char *prefix, struct repository 
 int cmd_diff_pairs(int argc, const char **argv, const char *prefix, struct repository *repo);
 int cmd_diff_tree(int argc, const char **argv, const char *prefix, struct repository *repo);
 int cmd_difftool(int argc, const char **argv, const char *prefix, struct repository *repo);
+int cmd_evict(int argc, const char **argv, const char *prefix, struct repository *repo);
 int cmd_env__helper(int argc, const char **argv, const char *prefix, struct repository *repo);
 int cmd_fast_export(int argc, const char **argv, const char *prefix, struct repository *repo);
 int cmd_fast_import(int argc, const char **argv, const char *prefix, struct repository *repo);
