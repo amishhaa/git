@@ -1793,6 +1793,22 @@ static inline int want_object_in_pack(const struct object_id *oid,
 				      struct packed_git **found_pack,
 				      off_t *found_offset)
 {
+	static struct object_id target_evict;
+    static int target_parsed = -1;
+
+    if (target_parsed == -1) {
+        const char *env_oid = getenv("GIT_EVICT_OID");
+        if (env_oid && !get_oid_hex(env_oid, &target_evict)) {
+            target_parsed = 1;
+        } else {
+            target_parsed = 0;
+        }
+    }
+
+    if (target_parsed == 1 && oideq(oid, &target_evict)) {
+        fprintf(stderr, "DEBUG: Evicted %s from pack entry search\n", oid_to_hex(oid));
+        return 0;
+    }
 	return want_object_in_pack_mtime(oid, exclude, found_pack, found_offset,
 					 0);
 }
